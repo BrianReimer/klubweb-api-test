@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBU API Test</title>
+  <link rel="stylesheet" href="css/dbu.css">
+</head>
+<body>
+
+  <!-- Screen A: Login -->
+  <div id="screen-login" class="screen">
+    <div class="login-wrapper">
+      <img src="assets/dbu-logo.svg" alt="DBU" class="login-logo">
+      <div class="card login-card">
+        <h2>Log ind</h2>
+        <form id="login-form" novalidate>
+          <label for="username">Brugernavn</label>
+          <input id="username" type="text" class="input" placeholder="Dit brugernavn" autocomplete="username" required>
+          <label for="password">Adgangskode</label>
+          <input id="password" type="password" class="input" placeholder="Din adgangskode" autocomplete="current-password" required>
+          <button type="submit" class="btn btn-primary btn-full" id="btn-login">Log ind</button>
+          <div id="login-error" class="error-box" hidden></div>
+        </form>
+      </div>
+      <p style="margin-top:1.25rem;font-size:.8125rem;color:var(--dbu-gray);">DBU KlubWeb API — Testmiljø</p>
+    </div>
+  </div>
+
+  <!-- Screen B: Endpoint Explorer -->
+  <div id="screen-explorer" class="screen" hidden>
+    <header class="site-header">
+      <img src="assets/dbu-logo.svg" alt="DBU" class="header-logo">
+      <span class="header-title">API Test</span>
+      <button id="btn-logout" class="btn header-logout">Log ud</button>
+    </header>
+    <nav id="endpoint-nav" class="endpoint-nav" role="navigation" aria-label="Endpoint grupper"></nav>
+    <div id="endpoint-subnav" class="endpoint-subnav"></div>
+    <main id="main-content" class="main-content" role="main"></main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -v -X GET https://apitest.dbu.dk/v1/help -H 'Authorization: Bearer 142XTVJ')",
+      "Bash(curl -v -X GET https://apitest.dbu.dk/v1/clubs -H 'Authorization: Basic __CMDSUB_OUTPUT__')",
+      "Bash(curl -v -X GET https://apitest.dbu.dk/v1/members -H 'Authorization: Basic __CMDSUB_OUTPUT__')"
+    ]
+  }
+}
