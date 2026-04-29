@@ -286,19 +286,15 @@ label {
   border-bottom-color: var(--dbu-red);
 }
 
-.nav-webhook-link {
-  margin-left: auto;
-  padding: .875rem 1.125rem;
-  font-size: .875rem;
-  font-weight: 500;
-  color: var(--dbu-gray);
+.header-webhook {
+  background: rgba(255,255,255,.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,.25);
+  padding: .375rem .875rem;
+  font-size: .8125rem;
   text-decoration: none;
-  white-space: nowrap;
-  transition: color var(--transition);
-  border-bottom: 3px solid transparent;
-  margin-bottom: -1px;
 }
-.nav-webhook-link:hover { color: var(--dbu-red); }
+.header-webhook:hover { background: rgba(255,255,255,.25); }
 
 /* ── Endpoint Sub-nav ──────────────────────────────────────── */
 .endpoint-subnav {
