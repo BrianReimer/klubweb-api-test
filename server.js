@@ -1,6 +1,20 @@
-const express = require('express');
-const path    = require('path');
-const app     = express();
+const express   = require('express');
+const rateLimit = require('express-rate-limit');
+const path      = require('path');
+const app       = express();
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'For mange requests — prøv igen om et minut.' },
+});
+
+app.use('/webhook',      limiter);
+app.use('/events',       limiter);
+app.use('/clear',        limiter);
+app.use('/webhook-view', limiter);
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
