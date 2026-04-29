@@ -83,6 +83,13 @@ app.get('/', (req, res) => {
   res.send(buildUI(webhookUrl));
 });
 
+// ── GET /webhook-view  (UI alias) ──────────────────────────
+app.get('/webhook-view', (req, res) => {
+  const host = req.headers.host;
+  const webhookUrl = `${req.protocol}://${host}/webhook`;
+  res.send(buildUI(webhookUrl));
+});
+
 // ── Start ──────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Webhook receiver running on port ${PORT}`));
