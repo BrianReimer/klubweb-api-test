@@ -497,16 +497,22 @@ function renderContacts(data) {
   if (!data || !data.length) return '<div class="response-empty">Ingen kontakter.</div>';
   return `
     <div class="smart-view">
-      ${data.map(c => `
-        <div class="data-row">
-          <div class="data-row-main">
-            <span class="data-row-name">${escHtml(c.Name ?? '–')}</span>
-            <span class="data-row-sub">${escHtml(c.Role ?? c.ContactType ?? '')}</span>
+      ${data.map(c => {
+        const name = [c.FirstName, c.LastName].filter(Boolean).join(' ') || c.Name || '–';
+        const phone = c.Mobile || c.Telephone || c.Phone;
+        return `
+          <div class="data-row">
+            <div class="data-row-main">
+              <span class="data-row-name">${escHtml(name)}</span>
+              <span class="data-row-sub">${escHtml(c.AssignmentName ?? c.Role ?? '')}</span>
+            </div>
+            <div class="data-row-actions">
+              ${phone ? `<span class="data-chip">📞 ${escHtml(phone)}</span>` : ''}
+              ${c.Email ? `<a class="link-btn" href="mailto:${escAttr(c.Email)}">${escHtml(c.Email)}</a>` : ''}
+            </div>
           </div>
-          ${c.Email ? `<a class="link-btn" href="mailto:${escAttr(c.Email)}">${escHtml(c.Email)}</a>` : ''}
-          ${c.Phone ? `<span class="data-chip">${escHtml(c.Phone)}</span>` : ''}
-        </div>
-      `).join('')}
+        `;
+      }).join('')}
     </div>
   `;
 }
