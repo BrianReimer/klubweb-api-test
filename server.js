@@ -153,6 +153,12 @@ function buildUI(webhookUrl) {
     .match-event-desc span { font-size: .8125rem; color: var(--gray); }
     .match-events-note { padding: .75rem 1rem; font-size: .8125rem; color: var(--gray); font-style: italic; }
     .match-events-loading { padding: .75rem 1rem; font-size: .8125rem; color: var(--gray); }
+    .auth-bar { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: .875rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .auth-bar-label { font-size: .8125rem; font-weight: 600; color: var(--gray-dark); white-space: nowrap; }
+    .auth-bar input { flex: 1; min-width: 140px; padding: .4rem .75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: .8125rem; outline: none; }
+    .auth-bar input:focus { border-color: var(--red); }
+    .auth-status { font-size: .8125rem; color: var(--green); font-weight: 500; }
+    .auth-status.error { color: var(--red); }
   </style>
 </head>
 <body>
@@ -163,6 +169,13 @@ function buildUI(webhookUrl) {
   <span class="status-label" id="status-label">Forbinder…</span>
 </header>
 <main>
+  <div class="auth-bar" id="auth-bar">
+    <span class="auth-bar-label">KlubOffice login</span>
+    <input id="auth-user" type="text" placeholder="Brugernavn" autocomplete="username">
+    <input id="auth-pass" type="password" placeholder="Adgangskode" autocomplete="current-password">
+    <button class="btn btn-primary" style="padding:.4rem 1rem;font-size:.8125rem;" onclick="doLogin()">Log ind</button>
+    <span class="auth-status" id="auth-status" hidden></span>
+  </div>
   <div class="url-card">
     <div class="url-label">Din Webhook URL</div>
     <div class="url-row">
@@ -188,6 +201,39 @@ function buildUI(webhookUrl) {
   const dotEl   = document.getElementById('status-dot');
   const labelEl = document.getElementById('status-label');
   let total = 0;
+  let apiToken = null;
+
+  // ── Auth ───────────────────────────────────────────────────
+  async function doLogin() {
+    const user = document.getElementById('auth-user').value.trim();
+    const pass = document.getElementById('auth-pass').value;
+    const statusEl = document.getElementById('auth-status');
+    if (!user || !pass) return;
+    statusEl.textContent = 'Logger ind…';
+    statusEl.className = 'auth-status';
+    statusEl.hidden = false;
+    try {
+      const res = await fetch('https://apitest.dbu.dk/v1/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ grant_type: 'password', username: user, password: pass }),
+      });
+      if (!res.ok) throw new Error('Forkert brugernavn eller adgangskode');
+      const data = await res.json();
+      apiToken = data.access_token;
+      statusEl.textContent = '✓ Logget ind';
+      statusEl.className = 'auth-status';
+      document.getElementById('auth-user').value = '';
+      document.getElementById('auth-pass').value = '';
+    } catch (err) {
+      statusEl.textContent = err.message;
+      statusEl.className = 'auth-status error';
+    }
+  }
+
+  document.getElementById('auth-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
 
   function setLive(on) {
     dotEl.className = 'status-dot' + (on ? ' live' : '');
@@ -234,9 +280,9 @@ function buildUI(webhookUrl) {
   }
 
   async function fetchMatchEvents(matchId, poolId, container) {
-    const token = localStorage.getItem('dbu_access_token');
+    const token = apiToken;
     if (!token) {
-      container.innerHTML = '<div class="match-events-note">Log ind i API-exploreren for at hente kampbegivenheder automatisk.</div>';
+      container.innerHTML = '<div class="match-events-note">Log ind ovenfor for at hente kampbegivenheder automatisk.</div>';
       return;
     }
     container.innerHTML = '<div class="match-events-loading">Henter kampbegivenheder…</div>';
