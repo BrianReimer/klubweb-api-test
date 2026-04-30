@@ -234,7 +234,7 @@ function buildUI(webhookUrl) {
   }
 
   async function fetchMatchEvents(matchId, poolId, container) {
-    const token = sessionStorage.getItem('dbu_access_token');
+    const token = localStorage.getItem('dbu_access_token');
     if (!token) {
       container.innerHTML = '<div class="match-events-note">Log ind i API-exploreren for at hente kampbegivenheder automatisk.</div>';
       return;

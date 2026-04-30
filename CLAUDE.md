@@ -54,7 +54,7 @@ Styres udelukkende med `hidden`-attributten — ingen routing eller URL-ændring
 ### `js/api.js` — Auth-lag
 
 - Autentificerer mod `https://apitest.dbu.dk/v1/api/token` med `grant_type: password`
-- Tokens gemmes i `sessionStorage` (ikke `localStorage`) — forsvinder ved lukning af fanen
+- Tokens gemmes i `localStorage` — persisteres på tværs af faner (samme origin), så webhook-vieweren kan genbruge tokenet
 - Auto-refresh: hvis access token udløber (med 30 sek. buffer), forsøges refresh automatisk før næste API-kald
 - Ved refresh-fejl: tokens ryddes og bruger sendes til login
 

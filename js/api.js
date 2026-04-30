@@ -8,22 +8,22 @@ const KEYS = {
 
 // ── Token storage ──────────────────────────────────────────
 function storeTokens({ access_token, refresh_token, expires_in }) {
-  sessionStorage.setItem(KEYS.access,    access_token);
-  sessionStorage.setItem(KEYS.refresh,   refresh_token);
-  sessionStorage.setItem(KEYS.expiresAt, String(Date.now() + expires_in * 1000));
+  localStorage.setItem(KEYS.access,    access_token);
+  localStorage.setItem(KEYS.refresh,   refresh_token);
+  localStorage.setItem(KEYS.expiresAt, String(Date.now() + expires_in * 1000));
 }
 
 function clearTokens() {
-  Object.values(KEYS).forEach(k => sessionStorage.removeItem(k));
+  Object.values(KEYS).forEach(k => localStorage.removeItem(k));
 }
 
 function isTokenExpired() {
-  const expiresAt = Number(sessionStorage.getItem(KEYS.expiresAt) ?? 0);
+  const expiresAt = Number(localStorage.getItem(KEYS.expiresAt) ?? 0);
   return Date.now() > expiresAt - 30_000; // 30s buffer
 }
 
 export function isLoggedIn() {
-  return !!sessionStorage.getItem(KEYS.access);
+  return !!localStorage.getItem(KEYS.access);
 }
 
 // ── Token fetch ────────────────────────────────────────────
@@ -53,7 +53,7 @@ export async function login(username, password) {
 
 // ── Internal: refresh ──────────────────────────────────────
 async function refreshToken() {
-  const token = sessionStorage.getItem(KEYS.refresh);
+  const token = localStorage.getItem(KEYS.refresh);
   if (!token) throw new Error('no_refresh_token');
   const data = await fetchToken({ grant_type: 'refresh_token', refresh_token: token });
   storeTokens(data);
@@ -94,7 +94,7 @@ export async function callEndpoint(endpoint, paramValues) {
   }
 
   const url = buildUrl(endpoint, paramValues);
-  const accessToken = sessionStorage.getItem(KEYS.access);
+  const accessToken = localStorage.getItem(KEYS.access);
 
   let res;
   try {
