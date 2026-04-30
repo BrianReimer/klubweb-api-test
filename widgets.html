@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KlubWeb Widgets</title>
+  <link rel="stylesheet" href="css/dbu.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <img src="assets/dbu-logo.svg" alt="DBU" class="header-logo">
+    <span class="header-title">KlubWeb Widgets</span>
+    <a href="index.html" class="btn header-logout">← Forside</a>
+  </header>
+
+  <section class="widgets-panel" style="display:flex">
+    <div class="widgets-toolbar">
+      <label for="widget-code">JavaScript-kode</label>
+      <button id="btn-run-widget" class="btn btn-primary">Vis</button>
+    </div>
+    <textarea id="widget-code" class="widget-textarea" spellcheck="false" placeholder="// Skriv JavaScript her...
+document.getElementById('output').innerHTML = '<h2>Hej verden!</h2>';"></textarea>
+    <div class="widgets-output-label">Output</div>
+    <iframe id="widget-frame" class="widget-frame" sandbox="allow-scripts"></iframe>
+  </section>
+
+  <script type="module" src="js/widgets.js"></script>
+</body>
+</html>

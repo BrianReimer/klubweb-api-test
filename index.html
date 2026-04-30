@@ -15,7 +15,7 @@
       <h1 class="home-title">Test af KlubWeb<br>API og Widgets</h1>
       <div class="home-buttons">
         <button id="btn-goto-api" class="btn btn-primary btn-home">API</button>
-        <button id="btn-goto-widgets" class="btn btn-secondary btn-home">Widgets</button>
+        <a href="widgets.html" class="btn btn-secondary btn-home">Widgets</a>
       </div>
     </div>
   </div>
@@ -44,24 +44,13 @@
     <header class="site-header">
       <img src="assets/dbu-logo.svg" alt="DBU" class="header-logo">
       <span class="header-title">KlubWeb Test</span>
-      <button id="tab-api" class="header-tab active">API</button>
-      <button id="tab-widgets" class="header-tab">Widgets</button>
+      <a href="widgets.html" class="btn header-webhook">Widgets ↗</a>
       <a href="https://klubweb-api-test-production.up.railway.app/webhook-view" target="_blank" class="btn header-webhook">Webhook ↗</a>
       <button id="btn-logout" class="btn header-logout">Log ud</button>
     </header>
     <nav id="endpoint-nav" class="endpoint-nav" role="navigation" aria-label="Endpoint grupper"></nav>
     <div id="endpoint-subnav" class="endpoint-subnav"></div>
     <main id="main-content" class="main-content" role="main"></main>
-    <section id="widgets-panel" class="widgets-panel" hidden>
-      <div class="widgets-toolbar">
-        <label for="widget-code">JavaScript-kode</label>
-        <button id="btn-run-widget" class="btn btn-primary">Vis</button>
-      </div>
-      <textarea id="widget-code" class="widget-textarea" spellcheck="false" placeholder="// Skriv JavaScript her...
-document.getElementById('output').innerHTML = '<h2>Hej verden!</h2>';"></textarea>
-      <div class="widgets-output-label">Output</div>
-      <iframe id="widget-frame" class="widget-frame" sandbox="allow-scripts"></iframe>
-    </section>
   </div>
 
   <script type="module" src="js/app.js"></script>

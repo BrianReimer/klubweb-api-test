@@ -4,7 +4,6 @@ import { GROUPS, ENDPOINTS, getEndpointsByGroup } from './endpoints.js';
 // ── State ──────────────────────────────────────────────────
 let activeGroup    = GROUPS[0];
 let activeEndpoint = getEndpointsByGroup(GROUPS[0])[0];
-let activeSection  = 'api';
 
 // Cache for responses so navigating back restores the result
 const responseCache = new Map(); // endpointId+JSON(params) → { data, rawJson }
@@ -20,57 +19,13 @@ const btnLogout      = document.getElementById('btn-logout');
 const navEl          = document.getElementById('endpoint-nav');
 const subnavEl       = document.getElementById('endpoint-subnav');
 const mainEl         = document.getElementById('main-content');
-const tabApi         = document.getElementById('tab-api');
-const tabWidgets     = document.getElementById('tab-widgets');
-const widgetsPanel   = document.getElementById('widgets-panel');
-
-// Tracks which section the user wants after login
-let pendingSection = 'api';
-
-// ── Section switching ──────────────────────────────────────
-function switchSection(section) {
-  activeSection = section;
-  tabApi.classList.toggle('active', section === 'api');
-  tabWidgets.classList.toggle('active', section === 'widgets');
-  navEl.hidden        = section !== 'api';
-  subnavEl.hidden     = section !== 'api';
-  mainEl.hidden       = section !== 'api';
-  widgetsPanel.hidden = section !== 'widgets';
-}
-
-tabApi.addEventListener('click', () => switchSection('api'));
-tabWidgets.addEventListener('click', () => switchSection('widgets'));
-
 // ── Home screen buttons ────────────────────────────────────
 document.getElementById('btn-goto-api').addEventListener('click', () => {
-  pendingSection = 'api';
   if (isLoggedIn()) {
     showExplorer();
-    switchSection('api');
   } else {
     showLogin();
   }
-});
-
-document.getElementById('btn-goto-widgets').addEventListener('click', () => {
-  pendingSection = 'widgets';
-  if (isLoggedIn()) {
-    showExplorer();
-    switchSection('widgets');
-  } else {
-    showLogin();
-  }
-});
-
-document.getElementById('btn-run-widget').addEventListener('click', () => {
-  const code  = document.getElementById('widget-code').value.trim();
-  const frame = document.getElementById('widget-frame');
-  const srcdoc = `<!DOCTYPE html><html lang="da"><head><meta charset="UTF-8">
-<style>body{font-family:'Space Grotesk',system-ui,sans-serif;padding:1.5rem;background:#fff;color:#000;}*{box-sizing:border-box;}</style>
-</head><body>
-${code}
-</body></html>`;
-  frame.srcdoc = srcdoc;
 });
 
 // ── Screen helpers ─────────────────────────────────────────
@@ -159,7 +114,6 @@ loginForm.addEventListener('submit', async (e) => {
 
   if (result.ok) {
     showExplorer();
-    switchSection(pendingSection);
   } else {
     showLoginError(result.error);
   }
@@ -692,7 +646,6 @@ function groupBy(arr, key) {
 // ── Init ───────────────────────────────────────────────────
 if (isLoggedIn()) {
   showExplorer();
-  switchSection('api');
 } else {
   showHome();
 }
