@@ -256,7 +256,7 @@ label {
   max-width: 400px;
   padding: 2rem;
 }
-.login-card h2 { margin-bottom: 1.5rem; }
+.login-card h2 { margin-bottom: 1.5rem; font-size: 1.125rem; }
 
 /* ── Site Header ───────────────────────────────────────────── */
 .site-header {
