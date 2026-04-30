@@ -30,6 +30,11 @@ function broadcast(event) {
   clients.forEach(res => res.write(msg));
 }
 
+// Heartbeat — holder SSE-forbindelsen åben og trigger onmessage i browseren
+setInterval(() => {
+  clients.forEach(res => res.write('data: {"type":"ping"}\n\n'));
+}, 20000);
+
 // ── POST /webhook ──────────────────────────────────────────
 app.post('/webhook', (req, res) => {
   const event = {
@@ -395,7 +400,9 @@ function buildUI(webhookUrl) {
     es.onopen = () => setLive(true);
     es.onerror = () => { setLive(false); setTimeout(connect, 3000); };
     es.onmessage = (e) => {
+      setLive(true);
       const data = JSON.parse(e.data);
+      if (data.type === 'ping') return;
       if (data.type === 'init') loadInit(data.requests);
       else if (data.type === 'clear') {
         seenIds.clear();
