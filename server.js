@@ -292,7 +292,29 @@ function buildUI(webhookUrl) {
       });
       if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
       const data = await res.json();
-      container.innerHTML = renderMatchEventsBlock(Array.isArray(data) ? data : []);
+      const rawJson = JSON.stringify(data, null, 2);
+      const events = Array.isArray(data) ? data : [];
+
+      let showingRaw = false;
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'btn btn-danger';
+      toggleBtn.style.cssText = 'padding:.25rem .75rem;font-size:.75rem;margin:.75rem 1rem .25rem;';
+      toggleBtn.textContent = 'Vis rå JSON';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.innerHTML = renderMatchEventsBlock(events);
+
+      toggleBtn.addEventListener('click', () => {
+        showingRaw = !showingRaw;
+        toggleBtn.textContent = showingRaw ? 'Vis pæn visning' : 'Vis rå JSON';
+        contentDiv.innerHTML = showingRaw
+          ? \`<div class="code-block" style="margin:.5rem 1rem 1rem;max-height:400px;">\${escHtml(rawJson)}</div>\`
+          : renderMatchEventsBlock(events);
+      });
+
+      container.innerHTML = '';
+      container.appendChild(toggleBtn);
+      container.appendChild(contentDiv);
     } catch (err) {
       container.innerHTML = \`<div class="match-events-note">Kunne ikke hente data: \${escHtml(err.message)}</div>\`;
     }
