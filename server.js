@@ -141,6 +141,18 @@ function buildUI(webhookUrl) {
     .code-block { background: var(--nav-dark); color: #E8E8E8; border-radius: var(--radius); padding: .875rem 1rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: .8rem; line-height: 1.6; max-height: 340px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
     .code-block::-webkit-scrollbar { width: 6px; }
     .code-block::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    .match-events-block { margin-top: .875rem; border: 1.5px solid #C90B0E22; border-radius: var(--radius); overflow: hidden; }
+    .match-events-header { background: #FFF7F7; padding: .5rem 1rem; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: #C90B0E; border-bottom: 1px solid #C90B0E22; display: flex; align-items: center; gap: .5rem; }
+    .match-events-body { padding: .75rem 1rem; display: flex; flex-direction: column; gap: .375rem; background: var(--white); }
+    .match-event-row { display: flex; align-items: center; gap: .75rem; font-size: .875rem; padding: .375rem 0; border-bottom: 1px solid var(--border); }
+    .match-event-row:last-child { border-bottom: none; }
+    .match-event-min { font-size: .8125rem; font-weight: 600; color: var(--gray); width: 32px; text-align: right; flex-shrink: 0; }
+    .match-event-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .match-event-desc { display: flex; flex-direction: column; gap: .1rem; }
+    .match-event-desc strong { font-weight: 500; color: var(--black); }
+    .match-event-desc span { font-size: .8125rem; color: var(--gray); }
+    .match-events-note { padding: .75rem 1rem; font-size: .8125rem; color: var(--gray); font-style: italic; }
+    .match-events-loading { padding: .75rem 1rem; font-size: .8125rem; color: var(--gray); }
   </style>
 </head>
 <body>
@@ -202,6 +214,44 @@ function buildUI(webhookUrl) {
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+
+  const EVENT_ICONS = { Goal: '⚽', YellowCard: '🟨', RedCard: '🟥', Substitution: '🔄' };
+
+  function renderMatchEventsBlock(events) {
+    if (!events.length) return '<div class="match-events-note">Ingen begivenheder fundet.</div>';
+    return \`<div class="match-events-body">
+      \${events.map(ev => \`
+        <div class="match-event-row">
+          <span class="match-event-min">\${escHtml(String(ev.Minute ?? '–'))}'</span>
+          <span class="match-event-icon">\${EVENT_ICONS[ev.EventType] ?? '•'}</span>
+          <span class="match-event-desc">
+            <strong>\${escHtml(ev.PlayerName ?? ev.EventType ?? '–')}</strong>
+            \${ev.TeamName ? \`<span>\${escHtml(ev.TeamName)}</span>\` : ''}
+          </span>
+        </div>
+      \`).join('')}
+    </div>\`;
+  }
+
+  async function fetchMatchEvents(matchId, poolId, container) {
+    const token = sessionStorage.getItem('dbu_access_token');
+    if (!token) {
+      container.innerHTML = '<div class="match-events-note">Log ind i API-exploreren for at hente kampbegivenheder automatisk.</div>';
+      return;
+    }
+    container.innerHTML = '<div class="match-events-loading">Henter kampbegivenheder…</div>';
+    try {
+      const res = await fetch(\`https://apitest.dbu.dk/v1/api/match-events/\${encodeURIComponent(matchId)}/\${encodeURIComponent(poolId)}\`, {
+        headers: { Authorization: \`Bearer \${token}\` }
+      });
+      if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+      const data = await res.json();
+      container.innerHTML = renderMatchEventsBlock(Array.isArray(data) ? data : []);
+    } catch (err) {
+      container.innerHTML = \`<div class="match-events-note">Kunne ikke hente data: \${escHtml(err.message)}</div>\`;
+    }
+  }
+
   function renderRequest(req) {
     const card = document.createElement('div');
     card.className = 'request-card';
@@ -209,14 +259,25 @@ function buildUI(webhookUrl) {
     const bodyStr  = req.body ? JSON.stringify(req.body, null, 2) : '(ingen body)';
     const queryStr = req.query && Object.keys(req.query).length ? JSON.stringify(req.query, null, 2) : '(ingen)';
     const headStr  = JSON.stringify(req.headers, null, 2);
+
+    const isMatchEvent = req.body && req.body.WebhookTypeName === 'MatchEvent';
+    const matchId = req.body && (req.body.MatchId ?? req.body.matchId);
+    const poolId  = req.body && (req.body.PoolId  ?? req.body.poolId);
+
     card.innerHTML = \`
       <div class="request-header" onclick="toggle(this)">
         <span class="method-badge \${req.method}">\${req.method}</span>
         <span class="request-time">\${formatTime(req.time)}</span>
-        <span class="request-summary">\${summarize(req)}</span>
+        <span class="request-summary">\${isMatchEvent ? '⚽ MatchEvent — kamp ' + escHtml(String(matchId ?? '')) : summarize(req)}</span>
         <span class="chevron">▼</span>
       </div>
       <div class="request-body">
+        \${isMatchEvent && matchId && poolId ? \`
+          <div class="match-events-block">
+            <div class="match-events-header">⚽ Kampbegivenheder — match-events/\${escHtml(String(matchId))}/\${escHtml(String(poolId))}</div>
+            <div class="match-events-content"></div>
+          </div>
+        \` : ''}
         <div class="section-label">Body</div>
         <div class="code-block">\${escHtml(bodyStr)}</div>
         <div class="section-label">Query parametre</div>
@@ -225,6 +286,12 @@ function buildUI(webhookUrl) {
         <div class="code-block">\${escHtml(headStr)}</div>
       </div>
     \`;
+
+    if (isMatchEvent && matchId && poolId) {
+      const container = card.querySelector('.match-events-content');
+      fetchMatchEvents(matchId, poolId, container);
+    }
+
     return card;
   }
   function toggle(header) { header.closest('.request-card').classList.toggle('open'); }
