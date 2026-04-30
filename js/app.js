@@ -38,23 +38,14 @@ tabApi.addEventListener('click', () => switchSection('api'));
 tabWidgets.addEventListener('click', () => switchSection('widgets'));
 
 document.getElementById('btn-run-widget').addEventListener('click', () => {
-  const code = document.getElementById('widget-code').value.trim();
+  const code  = document.getElementById('widget-code').value.trim();
   const frame = document.getElementById('widget-frame');
-
   const srcdoc = `<!DOCTYPE html><html lang="da"><head><meta charset="UTF-8">
 <style>body{font-family:'Space Grotesk',system-ui,sans-serif;padding:1.5rem;background:#fff;color:#000;}*{box-sizing:border-box;}</style>
-</head><body><div id="output"></div>
-<script>
-window.addEventListener('message', function(e) {
-  try { eval(e.data); }
-  catch(err) {
-    document.body.innerHTML = '<pre style="color:#E3140D;padding:1rem;background:#FEECEC;border-radius:4px">' + err.name + ': ' + err.message + '<\/pre>';
-  }
-});
-<\/script></body></html>`;
-
+</head><body>
+${code}
+</body></html>`;
   frame.srcdoc = srcdoc;
-  frame.onload = () => frame.contentWindow.postMessage(code, '*');
 });
 
 // ── Screen helpers ─────────────────────────────────────────
