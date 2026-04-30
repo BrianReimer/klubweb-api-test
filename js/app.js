@@ -4,6 +4,7 @@ import { GROUPS, ENDPOINTS, getEndpointsByGroup } from './endpoints.js';
 // ── State ──────────────────────────────────────────────────
 let activeGroup    = GROUPS[0];
 let activeEndpoint = getEndpointsByGroup(GROUPS[0])[0];
+let activeSection  = 'api';
 
 // Cache for responses so navigating back restores the result
 const responseCache = new Map(); // endpointId+JSON(params) → { data, rawJson }
@@ -18,11 +19,38 @@ const btnLogout      = document.getElementById('btn-logout');
 const navEl          = document.getElementById('endpoint-nav');
 const subnavEl       = document.getElementById('endpoint-subnav');
 const mainEl         = document.getElementById('main-content');
+const tabApi         = document.getElementById('tab-api');
+const tabWidgets     = document.getElementById('tab-widgets');
+const widgetsPanel   = document.getElementById('widgets-panel');
+
+// ── Section switching ──────────────────────────────────────
+function switchSection(section) {
+  activeSection = section;
+  tabApi.classList.toggle('active', section === 'api');
+  tabWidgets.classList.toggle('active', section === 'widgets');
+  navEl.hidden        = section !== 'api';
+  subnavEl.hidden     = section !== 'api';
+  mainEl.hidden       = section !== 'api';
+  widgetsPanel.hidden = section !== 'widgets';
+}
+
+tabApi.addEventListener('click', () => switchSection('api'));
+tabWidgets.addEventListener('click', () => switchSection('widgets'));
+
+document.getElementById('btn-run-widget').addEventListener('click', () => {
+  const code = document.getElementById('widget-code').value.trim();
+  const html = `<!DOCTYPE html><html lang="da"><head><meta charset="UTF-8">
+<style>body{font-family:'Space Grotesk',system-ui,sans-serif;padding:1.5rem;background:#fff;color:#000;}*{box-sizing:border-box;}</style>
+</head><body><div id="output"></div>
+<script>(function(){try{${code}}catch(e){document.body.innerHTML='<pre style="color:#E3140D;padding:1rem;background:#FEECEC;border-radius:4px">'+e.name+': '+e.message+'</pre>';}})();<\/script></body></html>`;
+  document.getElementById('widget-frame').srcdoc = html;
+});
 
 // ── Screen helpers ─────────────────────────────────────────
 function showExplorer() {
   screenLogin.hidden    = true;
   screenExplorer.hidden = false;
+  switchSection('api');
   renderNav();
   renderSubnav();
   // Auto-fetch holdliste on first open (no required params)

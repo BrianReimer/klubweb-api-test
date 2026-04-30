@@ -629,3 +629,46 @@ label {
 .error-response {
   color: #FF7070;
 }
+
+/* ── Header tabs (API / Widgets) ────────────────────────────── */
+.header-tab {
+  background: none; border: none;
+  border-bottom: 3px solid transparent;
+  padding: .25rem .875rem; align-self: stretch;
+  display: flex; align-items: center;
+  font-family: inherit; font-size: .8125rem; font-weight: 500;
+  color: rgba(255,255,255,.7); cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+.header-tab:hover { color: rgba(255,255,255,.95); }
+.header-tab.active { color: var(--dbu-white); border-bottom-color: var(--dbu-white); }
+
+/* ── Widgets panel ──────────────────────────────────────────── */
+.widgets-panel {
+  max-width: 900px; margin: 2rem auto;
+  padding: 0 1.5rem 4rem;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.widgets-toolbar {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
+}
+.widget-textarea {
+  width: 100%; min-height: 220px; padding: 1rem;
+  background: var(--dbu-nav-dark); color: #E8E8E8;
+  border: 1px solid #333; border-radius: var(--radius);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: .8125rem; line-height: 1.6;
+  resize: vertical; outline: none; caret-color: var(--dbu-red);
+}
+.widget-textarea:focus { border-color: var(--dbu-red); }
+.widgets-output-label {
+  font-size: .75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px; color: var(--dbu-gray);
+}
+.widget-frame {
+  width: 100%; min-height: 300px;
+  border: 1px solid var(--dbu-border);
+  border-radius: var(--radius); background: var(--dbu-white);
+}
