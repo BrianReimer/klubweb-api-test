@@ -10,6 +10,7 @@ let activeSection  = 'api';
 const responseCache = new Map(); // endpointId+JSON(params) → { data, rawJson }
 
 // ── DOM refs ───────────────────────────────────────────────
+const screenHome     = document.getElementById('screen-home');
 const screenLogin    = document.getElementById('screen-login');
 const screenExplorer = document.getElementById('screen-explorer');
 const loginForm      = document.getElementById('login-form');
@@ -22,6 +23,9 @@ const mainEl         = document.getElementById('main-content');
 const tabApi         = document.getElementById('tab-api');
 const tabWidgets     = document.getElementById('tab-widgets');
 const widgetsPanel   = document.getElementById('widgets-panel');
+
+// Tracks which section the user wants after login
+let pendingSection = 'api';
 
 // ── Section switching ──────────────────────────────────────
 function switchSection(section) {
@@ -37,6 +41,27 @@ function switchSection(section) {
 tabApi.addEventListener('click', () => switchSection('api'));
 tabWidgets.addEventListener('click', () => switchSection('widgets'));
 
+// ── Home screen buttons ────────────────────────────────────
+document.getElementById('btn-goto-api').addEventListener('click', () => {
+  pendingSection = 'api';
+  if (isLoggedIn()) {
+    showExplorer();
+    switchSection('api');
+  } else {
+    showLogin();
+  }
+});
+
+document.getElementById('btn-goto-widgets').addEventListener('click', () => {
+  pendingSection = 'widgets';
+  if (isLoggedIn()) {
+    showExplorer();
+    switchSection('widgets');
+  } else {
+    showLogin();
+  }
+});
+
 document.getElementById('btn-run-widget').addEventListener('click', () => {
   const code  = document.getElementById('widget-code').value.trim();
   const frame = document.getElementById('widget-frame');
@@ -49,10 +74,16 @@ ${code}
 });
 
 // ── Screen helpers ─────────────────────────────────────────
+function showHome() {
+  screenHome.hidden     = false;
+  screenLogin.hidden    = true;
+  screenExplorer.hidden = true;
+}
+
 function showExplorer() {
+  screenHome.hidden     = true;
   screenLogin.hidden    = true;
   screenExplorer.hidden = false;
-  switchSection('api');
   renderNav();
   renderSubnav();
   // Auto-fetch holdliste on first open (no required params)
@@ -66,6 +97,7 @@ function showExplorer() {
 }
 
 function showLogin(errorMsg) {
+  screenHome.hidden     = true;
   screenExplorer.hidden = true;
   screenLogin.hidden    = false;
   if (errorMsg) showLoginError(errorMsg);
@@ -127,6 +159,7 @@ loginForm.addEventListener('submit', async (e) => {
 
   if (result.ok) {
     showExplorer();
+    switchSection(pendingSection);
   } else {
     showLoginError(result.error);
   }
@@ -135,7 +168,7 @@ loginForm.addEventListener('submit', async (e) => {
 // ── Logout ─────────────────────────────────────────────────
 btnLogout.addEventListener('click', () => {
   logout();
-  showLogin();
+  showHome();
 });
 
 // ── Navigation ─────────────────────────────────────────────
@@ -659,6 +692,7 @@ function groupBy(arr, key) {
 // ── Init ───────────────────────────────────────────────────
 if (isLoggedIn()) {
   showExplorer();
+  switchSection('api');
 } else {
-  showLogin();
+  showHome();
 }
