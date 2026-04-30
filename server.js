@@ -363,7 +363,11 @@ function buildUI(webhookUrl) {
     return card;
   }
   function toggle(header) { header.closest('.request-card').classList.toggle('open'); }
+  const seenIds = new Set();
+
   function addRequest(req) {
+    if (seenIds.has(req.id)) return;
+    seenIds.add(req.id);
     const empty = listEl.querySelector('.empty-state');
     if (empty) empty.remove();
     listEl.prepend(renderRequest(req));
@@ -371,11 +375,20 @@ function buildUI(webhookUrl) {
     countEl.textContent = total;
   }
   function loadInit(reqs) {
-    total = reqs.length;
-    countEl.textContent = total;
-    if (!reqs.length) return;
     listEl.innerHTML = '';
-    reqs.forEach(r => listEl.appendChild(renderRequest(r)));
+    seenIds.clear();
+    total = 0;
+    if (!reqs.length) {
+      listEl.innerHTML = '<div class="empty-state"><div class="pulse">📡</div><p>Venter på indkommende webhooks…</p><p style="margin-top:.5rem;font-size:.8125rem;">Send en POST til URL\'en ovenfor</p></div>';
+      countEl.textContent = 0;
+      return;
+    }
+    reqs.forEach(r => {
+      seenIds.add(r.id);
+      listEl.appendChild(renderRequest(r));
+      total++;
+    });
+    countEl.textContent = total;
   }
   function connect() {
     const es = new EventSource('/events');
@@ -385,8 +398,10 @@ function buildUI(webhookUrl) {
       const data = JSON.parse(e.data);
       if (data.type === 'init') loadInit(data.requests);
       else if (data.type === 'clear') {
+        seenIds.clear();
+        total = 0;
+        countEl.textContent = 0;
         listEl.innerHTML = '<div class="empty-state"><div class="pulse">📡</div><p>Venter på indkommende webhooks…</p></div>';
-        total = 0; countEl.textContent = 0;
       } else {
         addRequest(data);
       }
