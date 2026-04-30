@@ -128,8 +128,8 @@ btnLogout.addEventListener('click', () => {
 // ── Navigation ─────────────────────────────────────────────
 function renderNav() {
   navEl.innerHTML = GROUPS.map(group => `
-    <button class="nav-group-btn${group === activeGroup ? ' active' : ''}" data-group="${group}">
-      ${group}
+    <button class="nav-group-btn${group === activeGroup ? ' active' : ''}" data-group="${escAttr(group)}">
+      ${escHtml(group)}
     </button>
   `).join('');
 
@@ -147,8 +147,8 @@ function renderNav() {
 function renderSubnav() {
   const endpoints = getEndpointsByGroup(activeGroup);
   subnavEl.innerHTML = endpoints.map(ep => `
-    <button class="subnav-btn${ep.id === activeEndpoint.id ? ' active' : ''}" data-id="${ep.id}">
-      ${ep.label}
+    <button class="subnav-btn${ep.id === activeEndpoint.id ? ' active' : ''}" data-id="${escAttr(ep.id)}">
+      ${escHtml(ep.label)}
     </button>
   `).join('');
 
@@ -280,7 +280,10 @@ async function doFetch(ep, prefillParams) {
 
   const rawJson = JSON.stringify(result.data, null, 2);
 
-  // Save to cache
+  // Save to cache (max 50 entries — evict oldest)
+  if (responseCache.size >= 50) {
+    responseCache.delete(responseCache.keys().next().value);
+  }
   responseCache.set(cacheKey(ep.id, paramValues), { data: result.data, rawJson, status: result.status });
 
   applyResult(ep, paramValues, result.data, rawJson, result.status, outputEl, statusBadge, btnCopy, btnRaw);
