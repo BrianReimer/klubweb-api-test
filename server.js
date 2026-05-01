@@ -277,7 +277,7 @@ function buildUI(webhookUrl) {
           <span class="match-event-icon">\${EVENT_ICONS[ev.EventType] ?? '•'}</span>
           <span class="match-event-desc">
             <strong>\${escHtml(ev.PlayerName ?? ev.EventType ?? '–')}</strong>
-            \${ev.TeamName ? \`<span>\${escHtml(ev.TeamName)}</span>\` : ''}
+            \${ev.TeamName ? '<span>' + escHtml(ev.TeamName) + '</span>' : ''}
           </span>
         </div>
       \`).join('')}
@@ -337,6 +337,10 @@ function buildUI(webhookUrl) {
     const matchId = req.body && (req.body.MatchId ?? req.body.matchId);
     const poolId  = req.body && (req.body.PoolId  ?? req.body.poolId);
 
+    const matchEventsHtml = isMatchEvent && matchId && poolId
+      ? '<div class="match-events-block"><div class="match-events-header">⚽ Kampbegivenheder — match-events/' + escHtml(String(matchId)) + '/' + escHtml(String(poolId)) + '</div><div class="match-events-content"></div></div>'
+      : '';
+
     card.innerHTML = \`
       <div class="request-header" onclick="toggle(this)">
         <span class="method-badge \${req.method}">\${req.method}</span>
@@ -345,12 +349,7 @@ function buildUI(webhookUrl) {
         <span class="chevron">▼</span>
       </div>
       <div class="request-body">
-        \${isMatchEvent && matchId && poolId ? \`
-          <div class="match-events-block">
-            <div class="match-events-header">⚽ Kampbegivenheder — match-events/\${escHtml(String(matchId))}/\${escHtml(String(poolId))}</div>
-            <div class="match-events-content"></div>
-          </div>
-        \` : ''}
+        \${matchEventsHtml}
         <div class="section-label">Body</div>
         <div class="code-block">\${escHtml(bodyStr)}</div>
         <div class="section-label">Query parametre</div>
@@ -384,7 +383,7 @@ function buildUI(webhookUrl) {
     seenIds.clear();
     total = 0;
     if (!reqs.length) {
-      listEl.innerHTML = '<div class="empty-state"><div class="pulse">📡</div><p>Venter på indkommende webhooks…</p><p style="margin-top:.5rem;font-size:.8125rem;">Send en POST til URL\'en ovenfor</p></div>';
+      listEl.innerHTML = '<div class="empty-state"><div class="pulse">📡</div><p>Venter på indkommende webhooks…</p><p style="margin-top:.5rem;font-size:.8125rem;">Send en POST til URL\\'en ovenfor</p></div>';
       countEl.textContent = 0;
       return;
     }
